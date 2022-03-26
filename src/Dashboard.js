@@ -14,6 +14,8 @@ function generatePositions() {
 
 const positions = generatePositions();
 
+//https://www.npmjs.com/package/google-map-react
+//https://zjor.medium.com/heatmaps-with-google-map-react-57e279315060
 export default function Dashboard() {
   const [map, setMap] = useState();
   const center = { lat: 37.7749, lng: -122.4194 };
