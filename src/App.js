@@ -1,23 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Dashboard from "./Dashboard";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div
+        style={{
+          width: "80rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <h1 style={{ marginBottom: "0.5rem" }}>StreetSweep</h1>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            marginBottom: "1rem",
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          <div className="hover-btn">Upload images</div>
+          <div
+            className="hover-btn"
+            style={{
+              marginLeft: "10px",
+            }}
+          >
+            View dashboard
+          </div>
+        </div>
+        <Dashboard />
+      </div>
     </div>
   );
 }
