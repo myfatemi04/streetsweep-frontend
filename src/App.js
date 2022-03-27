@@ -1,13 +1,36 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import "./App.css";
 import Dashboard from "./Dashboard";
 
 function App() {
   const [mapCenter, setMapCenter] = useState();
+  // can be "none", "submitting", "submitted", or "errored"
+  const [submissionStatus, setSubmissionStatus] = useState("none");
 
   const onMapCenterUpdate = useCallback((center) => {
     setMapCenter(center);
   }, []);
+
+  const imageInput = useRef();
+
+  const submit = useCallback(() => {
+    if (submissionStatus === "submitting") {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", imageInput.current.files[0]);
+    fetch(
+      `http://127.0.0.1:5000/submit_photo/${mapCenter.lat},${mapCenter.lng}`,
+      { mode: "no-cors", method: "post", body: formData }
+    )
+      .then(() => {
+        setSubmissionStatus("submitted");
+      })
+      .catch(() => {
+        console.log("Error submitting image");
+        setSubmissionStatus("errored");
+      });
+  }, [mapCenter, submissionStatus]);
 
   return (
     <div className="App">
@@ -23,34 +46,36 @@ function App() {
         <div
           style={{
             display: "flex",
-            flexDirection: "row",
+            alignItems: "center",
             marginBottom: "1rem",
           }}
         >
-          <form
-            method="post"
-            action={
-              mapCenter
-                ? `http://127.0.0.1:5000/submit_photo/${mapCenter.lat},${mapCenter.lng}`
-                : ""
-            }
-            encType="multipart/form-data"
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
+          <input
+            type="file"
+            name="file"
+            className="hover-btn"
+            ref={imageInput}
+          />
+          <button
+            type="submit"
+            className="hover-btn"
+            style={{ height: "100%" }}
+            onClick={submit}
+            disabled={submissionStatus === "submitting"}
           >
-            <input type="file" name="file" className="hover-btn" />
-            <button
-              type="submit"
-              className="hover-btn"
-              style={{ height: "100%" }}
-            >
-              Upload
-            </button>
-          </form>
+            {submissionStatus === "submitting"
+              ? "Uploading..."
+              : submissionStatus === "none"
+              ? "Upload"
+              : submissionStatus === "submitted"
+              ? "Uploaded"
+              : "Error"}
+          </button>
         </div>
-        <Dashboard onMapCenterUpdate={onMapCenterUpdate} />
+        <Dashboard
+          onMapCenterUpdate={onMapCenterUpdate}
+          submissionStatus={submissionStatus}
+        />
       </div>
     </div>
   );

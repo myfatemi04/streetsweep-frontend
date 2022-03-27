@@ -28,7 +28,7 @@ const numFormat = new Intl.NumberFormat("en-US", {
 
 // https://www.npmjs.com/package/google-map-react
 // https://zjor.medium.com/heatmaps-with-google-map-react-57e279315060
-export default function Dashboard({ onMapCenterUpdate }) {
+export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
   const mapRef = useRef();
   const center = { lat: 37.7749, lng: -122.4194 };
   const zoom = 9;
@@ -40,7 +40,7 @@ export default function Dashboard({ onMapCenterUpdate }) {
     getSubmissions().then((submissions) => {
       setPositions(submissions);
     });
-  }, []);
+  }, [submissionStatus]);
 
   useLayoutEffect(() => {
     if (!mapRef.current) return;
