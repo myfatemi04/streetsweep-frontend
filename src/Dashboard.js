@@ -30,7 +30,7 @@ const enableMockHeatmapGeneration = false;
 export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
   const mapRef = useRef();
   const center = { lat: 37.7749, lng: -122.4194 };
-  const zoom = 9;
+  const zoom = 12;
   const [northEast, setNorthEast] = useState();
   const [southWest, setSouthWest] = useState();
   const [submissions, setPositions] = useState([]);
@@ -187,8 +187,23 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
           borderRadius: "1rem",
           overflow: "hidden",
           zIndex: 1,
+          position: "relative",
         }}
       >
+        <div
+          style={{
+            position: "absolute",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 2,
+            color: "black",
+            inset: "50%",
+            userSelect: "none",
+          }}
+        >
+          +
+        </div>
         <GoogleMapReact
           ref={mapRef}
           bootstrapURLKeys={{ key: "AIzaSyDUnWIrt-H4RuP2YFLpVPz4oAjBhpOOoyI" }}
