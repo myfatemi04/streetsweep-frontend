@@ -118,6 +118,31 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
     );
   }, [northEast, southWest, submissions]);
 
+  useLayoutEffect(() => {
+    if (!mapRef.current) {
+      return;
+    }
+
+    function setup() {
+      const map = mapRef.current.map_;
+      if (!map) {
+        console.log("No map");
+        setTimeout(setup, 100);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          map.setCenter({ lat: latitude, lng: longitude });
+        },
+        () => {}
+      );
+    }
+
+    setup();
+  }, []);
+
   const visibleMostLikelyClassNames = useMemo(() => {
     if (!visibleSubmissions.length) {
       return [];
