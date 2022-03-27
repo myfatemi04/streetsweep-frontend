@@ -237,6 +237,7 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
             border: "1px solid white",
             borderRadius: "1rem",
             padding: "1rem",
+            marginBottom: "2rem",
           }}
         >
           {visibleSubmissions.map((submission, idx) => {
