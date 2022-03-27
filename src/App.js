@@ -1,7 +1,14 @@
+import { useCallback, useState } from "react";
 import "./App.css";
 import Dashboard from "./Dashboard";
 
 function App() {
+  const [mapCenter, setMapCenter] = useState();
+
+  const onMapCenterUpdate = useCallback((center) => {
+    setMapCenter(center);
+  }, []);
+
   return (
     <div className="App">
       <div
@@ -22,7 +29,11 @@ function App() {
         >
           <form
             method="post"
-            action="http://127.0.0.1:5000/submit_photo"
+            action={
+              mapCenter
+                ? `http://127.0.0.1:5000/submit_photo/${mapCenter.lat},${mapCenter.lng}`
+                : ""
+            }
             encType="multipart/form-data"
             style={{
               display: "flex",
@@ -30,8 +41,6 @@ function App() {
             }}
           >
             <input type="file" name="file" className="hover-btn" />
-            <input name="lat" type="hidden" value="37.7749" />
-            <input name="lon" type="hidden" value="-122.4194" />
             <button
               type="submit"
               className="hover-btn"
@@ -41,7 +50,7 @@ function App() {
             </button>
           </form>
         </div>
-        <Dashboard />
+        <Dashboard onMapCenterUpdate={onMapCenterUpdate} />
       </div>
     </div>
   );

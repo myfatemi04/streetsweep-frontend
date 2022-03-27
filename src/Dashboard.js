@@ -1,78 +1,119 @@
 import GoogleMapReact from "google-map-react";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useLayoutEffect, useState, useMemo } from "react";
+import { getSubmissions } from "./api";
 
-function generatePositions() {
-  const positions = [];
-  for (let i = 0; i < 20; i++) {
-    positions.push({
-      lat: Math.random() * 0.3 + 37.7749,
-      lng: Math.random() * 0.3 + -122.4194,
-    });
-  }
-  return positions;
-}
+// function generatePositions() {
+//   const positions = [];
+//   for (let i = 0; i < 20; i++) {
+//     positions.push({
+//       lat: Math.random() * 0.3 + 37.7749,
+//       lng: Math.random() * 0.3 + -122.4194,
+//     });
+//   }
+//   return positions;
+// }
 
-const positions = generatePositions();
+// const positions = getSubmissions(); // generatePositions();
 
 // https://www.npmjs.com/package/google-map-react
 // https://zjor.medium.com/heatmaps-with-google-map-react-57e279315060
-export default function Dashboard() {
+export default function Dashboard({ onMapCenterUpdate }) {
   const mapRef = useRef();
   const center = { lat: 37.7749, lng: -122.4194 };
   const zoom = 9;
   const [northEast, setNorthEast] = useState();
   const [southWest, setSouthWest] = useState();
+  const [submissions, setPositions] = useState([]);
 
   useEffect(() => {
+    getSubmissions().then((submissions) => {
+      setPositions(submissions);
+    });
+  }, []);
+
+  useLayoutEffect(() => {
     if (!mapRef.current) return;
 
-    const map = mapRef.current.map_;
+    const listeners = [];
+    let foundMap = null;
 
-    if (!map) {
-      return;
-    }
-
-    let previousCallTime = 0;
-
-    const mapBoundsChangedListener = () => {
-      const currentCallTime = new Date().getTime();
-
-      if (currentCallTime - previousCallTime < 200) {
+    function setup() {
+      const map = mapRef.current.map_;
+      if (!map) {
+        console.log("No map");
+        setTimeout(setup, 100);
         return;
       }
 
-      const bounds = map.getBounds();
-      const northEast = bounds.getNorthEast();
-      const southWest = bounds.getSouthWest();
+      if (listeners.length > 0) {
+        return;
+      }
 
-      setNorthEast(northEast.toJSON());
-      setSouthWest(southWest.toJSON());
+      foundMap = map;
 
-      previousCallTime = currentCallTime;
-    };
+      let previousMapBoundsChangedCallTime = 0;
+      let previousCenterChangedCallTime = 0;
 
-    map.addListener("center_changed", mapBoundsChangedListener);
-    map.addListener("zoom_changed", mapBoundsChangedListener);
+      const mapBoundsChangedListener = () => {
+        const currentCallTime = new Date().getTime();
+        if (currentCallTime - previousMapBoundsChangedCallTime < 200) {
+          return;
+        }
 
-    return () => {
-      map.removeListener("center_changed", mapBoundsChangedListener);
-      map.removeListener("zoom_changed", mapBoundsChangedListener);
-    };
-  }, [mapRef]);
+        const bounds = map.getBounds();
+        const northEast = bounds.getNorthEast();
+        const southWest = bounds.getSouthWest();
 
-  const visiblePositions = useMemo(() => {
-    if (!northEast || !southWest) {
-      return positions;
+        setNorthEast(northEast.toJSON());
+        setSouthWest(southWest.toJSON());
+
+        previousMapBoundsChangedCallTime = currentCallTime;
+      };
+
+      const centerChangedListener = () => {
+        const currentCallTime = new Date().getTime();
+        if (currentCallTime - previousCenterChangedCallTime < 200) {
+          return;
+        }
+
+        onMapCenterUpdate(map.getCenter().toJSON());
+      };
+
+      centerChangedListener();
+      mapBoundsChangedListener();
+
+      map.addListener("center_changed", mapBoundsChangedListener);
+      map.addListener("center_changed", centerChangedListener);
+      map.addListener("zoom_changed", mapBoundsChangedListener);
+
+      listeners.push(mapBoundsChangedListener);
+      listeners.push(centerChangedListener);
     }
 
-    return positions.filter(
-      (position) =>
-        position.lat > southWest.lat &&
-        position.lat < northEast.lat &&
-        position.lng > southWest.lng &&
-        position.lng < northEast.lng
+    setup();
+
+    return () => {
+      if (foundMap) {
+        foundMap.removeListener("center_changed", listeners[0]);
+        foundMap.removeListener("center_changed", listeners[1]);
+        foundMap.removeListener("zoom_changed", listeners[0]);
+      }
+    };
+  }, [onMapCenterUpdate]);
+
+  const visibleSubmissions = useMemo(() => {
+    if (!northEast || !southWest) {
+      return submissions;
+    }
+
+    return submissions.filter(
+      (submission) =>
+        submission.lat > southWest.lat &&
+        submission.lat < northEast.lat &&
+        submission.lng > southWest.lng &&
+        submission.lng < northEast.lng
     );
-  }, [northEast, southWest]);
+  }, [northEast, southWest, submissions]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -93,7 +134,10 @@ export default function Dashboard() {
           defaultZoom={zoom}
           heatmapLibrary={true}
           heatmap={{
-            positions,
+            positions: submissions.map((submission) => ({
+              lat: submission.lat,
+              lng: submission.lng,
+            })),
             options: {
               radius: 20,
               opacity: 0.7,
@@ -102,7 +146,11 @@ export default function Dashboard() {
           onClick={() => {}}
         />
       </div>
-      <p>{visiblePositions.length} instances of garbage found in this area.</p>
+      <p>
+        {visibleSubmissions.length} instance
+        {visibleSubmissions.length !== 1 ? "s" : ""} of garbage found in this
+        area.
+      </p>
     </div>
   );
 }
