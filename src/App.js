@@ -19,12 +19,16 @@ function App() {
     }
     const formData = new FormData();
     formData.append("file", imageInput.current.files[0]);
+    setSubmissionStatus("submitting");
     fetch(
       `http://127.0.0.1:5555/submit_photo/${mapCenter.lat},${mapCenter.lng}`,
       { mode: "no-cors", method: "post", body: formData }
     )
       .then(() => {
         setSubmissionStatus("submitted");
+        setTimeout(() => {
+          setSubmissionStatus("none");
+        }, 5000);
       })
       .catch(() => {
         console.log("Error submitting image");
