@@ -3,9 +3,8 @@ import { classes } from "./imagenetClasses";
 export default function getMostLikelyClassNames(classLikelihoods) {
   return classLikelihoods.map(getMostLikelyClassName).filter((className) => {
     return (
-      !["nipple"].includes(className) &&
-      (["bottle", "can", "plastic bag"].includes(className) ||
-        className.includes("plastic"))
+      ["bottle", "can", "plastic bag"].includes(className) ||
+      className.includes("plastic")
     );
   });
 }

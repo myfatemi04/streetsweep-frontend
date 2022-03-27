@@ -6,7 +6,8 @@ body {
 
 .App {
   text-align: center;
-  background-color: #282c34;
+  /* background-color: #a0f78b; */
+  background-color: #a7d86d;
   display: flex;
   min-height: 100vh;
   flex-direction: column;
@@ -17,7 +18,7 @@ body {
 }
 
 button.cool {
-  background-color: #282c34;
+  background-color: rgba(0, 0, 0, 0);
   color: white;
   border: 1px solid white;
   font-size: 2rem;

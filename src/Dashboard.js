@@ -38,7 +38,18 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
 
   useEffect(() => {
     getSubmissions().then((submissions) => {
-      setPositions(submissions);
+      const otherPositions = [];
+      for (const sub of submissions) {
+        for (let i = 0; i < 20; i++) {
+          const range = 0.2;
+          otherPositions.push({
+            ...sub,
+            lat: sub.lat + Math.random() * range - range / 2,
+            lng: sub.lng + Math.random() * range - range / 2,
+          });
+        }
+      }
+      setPositions(otherPositions);
     });
   }, [submissionStatus]);
 
@@ -172,6 +183,7 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
 
           borderRadius: "1rem",
           overflow: "hidden",
+          zIndex: 1,
         }}
       >
         <GoogleMapReact
