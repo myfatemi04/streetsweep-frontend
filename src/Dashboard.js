@@ -171,6 +171,8 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
       <div>
         {totalGarbage} instance
         {totalGarbage !== 1 ? "s" : ""} of garbage found in this area.
+        <br />
+        <br />
         <div
           style={{
             display: "flex",
@@ -192,21 +194,42 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
                 key={`${submission.lat}:${submission.lng}:${idx}`}
                 style={{ fontSize: "1rem" }}
               >
-                <b>
-                  {numFormat.format(submission.lat)},{" "}
-                  {numFormat.format(submission.lng)}
-                </b>{" "}
-                {Object.keys(classNamesByCount).map((className, idx) => (
-                  <React.Fragment key={className}>
-                    <span key={className}>
-                      {className}
-                      {classNamesByCount[className] > 1 &&
-                        ` (x${classNamesByCount[className]})`}
-                    </span>
-                    {idx + 1 < numUniqueClassnames && ", "}
-                  </React.Fragment>
-                ))}{" "}
-                at {new Date(submission.timestamp).toLocaleString()}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <span style={{ marginBottom: "0.5rem" }}>
+                    <b>
+                      {numFormat.format(submission.lat)},{" "}
+                      {numFormat.format(submission.lng)}
+                    </b>{" "}
+                    at {new Date(submission.timestamp).toLocaleString()}
+                  </span>
+                  <b>Detections</b>
+                  <ul style={{ marginTop: 0, textAlign: "left" }}>
+                    {Object.keys(classNamesByCount).map((className, idx) => (
+                      <li key={className}>
+                        <span key={className}>
+                          {className}
+                          {classNamesByCount[className] > 1 &&
+                            ` (x${classNamesByCount[className]})`}
+                        </span>
+                        {idx + 1 < numUniqueClassnames && ", "}
+                      </li>
+                    ))}
+                  </ul>
+                  <img
+                    src={`http://127.0.0.1:5555/annotations/${submission.id}.jpg`}
+                    alt=""
+                    style={{
+                      maxWidth: "20rem",
+                      marginBottom: "1rem",
+                    }}
+                  />
+                </div>
               </div>
             );
           })}
