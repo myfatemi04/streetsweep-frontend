@@ -727,7 +727,7 @@ pirate
 pitcher
 plane
 planetarium
-plastic bag
+plastics
 plate rack
 plow
 plunger

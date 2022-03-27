@@ -23,6 +23,8 @@ import SubmissionListItem from "./SubmissionListItem";
 
 // const positions = getSubmissions(); // generatePositions();
 
+const enableMockHeatmapGeneration = false;
+
 // https://www.npmjs.com/package/google-map-react
 // https://zjor.medium.com/heatmaps-with-google-map-react-57e279315060
 export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
@@ -37,13 +39,17 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
     getSubmissions().then((submissions) => {
       const otherPositions = [];
       for (const sub of submissions) {
-        for (let i = 0; i < 20; i++) {
-          const range = 0.2;
-          otherPositions.push({
-            ...sub,
-            lat: sub.lat + Math.random() * range - range / 2,
-            lng: sub.lng + Math.random() * range - range / 2,
-          });
+        otherPositions.push(sub);
+
+        if (enableMockHeatmapGeneration) {
+          for (let i = 0; i < 20; i++) {
+            const range = 0.2;
+            otherPositions.push({
+              ...sub,
+              lat: sub.lat + Math.random() * range - range / 2,
+              lng: sub.lng + Math.random() * range - range / 2,
+            });
+          }
         }
       }
       setPositions(otherPositions);
