@@ -29,6 +29,7 @@ button.cool {
 }
 
 .hover-btn {
+  background-color: rgba(0, 0, 0, 0);
   color: white;
   border: 1px solid white;
   padding: 1rem;
