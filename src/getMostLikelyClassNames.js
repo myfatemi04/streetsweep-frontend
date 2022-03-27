@@ -1,9 +1,9 @@
 import { classes } from "./imagenetClasses";
 
 export default function getMostLikelyClassNames(classLikelihoods) {
-  console.log(classLikelihoods);
-
-  return classLikelihoods.map(getMostLikelyClassName);
+  return classLikelihoods.map(getMostLikelyClassName).filter((className) => {
+    return !["nipple"].includes(className);
+  });
 }
 
 function getMostLikelyClassName(classLikelihoods) {

@@ -1,5 +1,11 @@
 import GoogleMapReact from "google-map-react";
-import { useEffect, useRef, useLayoutEffect, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useLayoutEffect,
+  useState,
+  useMemo,
+} from "react";
 import { getSubmissions } from "./api";
 import getMostLikelyClassNames from "./getMostLikelyClassNames";
 
@@ -118,6 +124,24 @@ export default function Dashboard({ onMapCenterUpdate }) {
     );
   }, [northEast, southWest, submissions]);
 
+  const visibleMostLikelyClassNames = useMemo(() => {
+    if (!visibleSubmissions.length) {
+      return [];
+    }
+
+    return visibleSubmissions.map((v) =>
+      getMostLikelyClassNames(v.class_likelihoods)
+    );
+  }, [visibleSubmissions]);
+
+  const totalGarbage = useMemo(() => {
+    let count = 0;
+    visibleMostLikelyClassNames.forEach((classNames) => {
+      count += classNames.length;
+    });
+    return count;
+  }, [visibleMostLikelyClassNames]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div
@@ -149,10 +173,9 @@ export default function Dashboard({ onMapCenterUpdate }) {
           onClick={() => {}}
         />
       </div>
-      <p>
-        {visibleSubmissions.length} instance
-        {visibleSubmissions.length !== 1 ? "s" : ""} of garbage found in this
-        area.
+      <div>
+        {totalGarbage} instance
+        {totalGarbage !== 1 ? "s" : ""} of garbage found in this area.
         <div
           style={{
             display: "flex",
@@ -162,12 +185,12 @@ export default function Dashboard({ onMapCenterUpdate }) {
           {visibleSubmissions.map((submission, idx) => {
             const classNamesByCount = {};
 
-            for (const className of getMostLikelyClassNames(
-              submission.class_likelihoods
-            )) {
+            for (const className of visibleMostLikelyClassNames[idx]) {
               classNamesByCount[className] =
                 (classNamesByCount[className] || 0) + 1;
             }
+
+            const numUniqueClassnames = Object.keys(classNamesByCount).length;
 
             return (
               <div
@@ -177,20 +200,23 @@ export default function Dashboard({ onMapCenterUpdate }) {
                 <b>
                   {numFormat.format(submission.lat)},{" "}
                   {numFormat.format(submission.lng)}
-                </b>
-                {Object.keys(classNamesByCount).map((className) => (
-                  <span key={className}>
-                    {className}
-                    {classNamesByCount[className] > 1 &&
-                      ` (x${classNamesByCount[className]})`}
-                    <br />
-                  </span>
-                ))}
+                </b>{" "}
+                {Object.keys(classNamesByCount).map((className, idx) => (
+                  <React.Fragment key={className}>
+                    <span key={className}>
+                      {className}
+                      {classNamesByCount[className] > 1 &&
+                        ` (x${classNamesByCount[className]})`}
+                    </span>
+                    {idx + 1 < numUniqueClassnames && ", "}
+                  </React.Fragment>
+                ))}{" "}
+                at {new Date(submission.timestamp).toLocaleString()}
               </div>
             );
           })}
         </div>
-      </p>
+      </div>
     </div>
   );
 }
