@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { getSubmissions } from "./api";
 import getMostLikelyClassNames from "./getMostLikelyClassNames";
+import SubmissionListItem from "./SubmissionListItem";
 
 // function generatePositions() {
 //   const positions = [];
@@ -21,10 +22,6 @@ import getMostLikelyClassNames from "./getMostLikelyClassNames";
 // }
 
 // const positions = getSubmissions(); // generatePositions();
-
-const numFormat = new Intl.NumberFormat("en-US", {
-  maximumSignificantDigits: 4,
-});
 
 // https://www.npmjs.com/package/google-map-react
 // https://zjor.medium.com/heatmaps-with-google-map-react-57e279315060
@@ -214,60 +211,18 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
           style={{
             display: "flex",
             flexDirection: "column",
+            maxHeight: "30rem",
+            overflowY: "auto",
+            border: "1px solid white",
+            borderRadius: "1rem",
+            padding: "1rem",
           }}
         >
           {visibleSubmissions.map((submission, idx) => {
-            const classNamesByCount = {};
-
-            for (const className of visibleMostLikelyClassNames[idx]) {
-              classNamesByCount[className] =
-                (classNamesByCount[className] || 0) + 1;
-            }
-
-            const numUniqueClassnames = Object.keys(classNamesByCount).length;
-
             return (
-              <div
-                key={`${submission.lat}:${submission.lng}:${idx}`}
-                style={{ fontSize: "1rem" }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span style={{ marginBottom: "0.5rem" }}>
-                    <b>
-                      {numFormat.format(submission.lat)},{" "}
-                      {numFormat.format(submission.lng)}
-                    </b>{" "}
-                    at {new Date(submission.timestamp).toLocaleString()}
-                  </span>
-                  <b>Detections</b>
-                  <ul style={{ marginTop: 0, textAlign: "left" }}>
-                    {Object.keys(classNamesByCount).map((className, idx) => (
-                      <li key={className}>
-                        <span key={className}>
-                          {className}
-                          {classNamesByCount[className] > 1 &&
-                            ` (x${classNamesByCount[className]})`}
-                        </span>
-                        {idx + 1 < numUniqueClassnames && ", "}
-                      </li>
-                    ))}
-                  </ul>
-                  <img
-                    src={`http://127.0.0.1:5555/annotations/${submission.id}.jpg`}
-                    alt=""
-                    style={{
-                      maxWidth: "20rem",
-                      marginBottom: "1rem",
-                    }}
-                  />
-                </div>
-              </div>
+              <React.Fragment key={idx}>
+                <SubmissionListItem submission={submission} />
+              </React.Fragment>
             );
           })}
         </div>

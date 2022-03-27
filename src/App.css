@@ -1,13 +1,36 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap");
 
+/* Let's get this party started */
+/* ::-webkit-scrollbar {
+  width: 12px;
+  background-color: transparent;
+  z-index: -1;
+} */
+
+/* Track */
+/* ::-webkit-scrollbar-track {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+} */
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+}
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 255, 255, 0.4);
+}
 body {
   font-family: "Inter", sans-serif;
+  background: linear-gradient(to bottom, #a7d86d 0%, #bbd49d 100%);
 }
 
 .App {
   text-align: center;
   /* background-color: #a0f78b; */
-  background-color: #a7d86d;
+  /* background-color: #a7d86d; */
   display: flex;
   min-height: 100vh;
   flex-direction: column;
