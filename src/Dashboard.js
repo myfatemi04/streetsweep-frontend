@@ -90,23 +90,17 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
       centerChangedListener();
       mapBoundsChangedListener();
 
-      map.addListener("center_changed", mapBoundsChangedListener);
-      map.addListener("center_changed", centerChangedListener);
-      map.addListener("zoom_changed", mapBoundsChangedListener);
-
-      listeners.push(mapBoundsChangedListener);
-      listeners.push(centerChangedListener);
+      listeners.push(
+        map.addListener("center_changed", mapBoundsChangedListener)
+      );
+      listeners.push(map.addListener("center_changed", centerChangedListener));
+      listeners.push(map.addListener("zoom_changed", mapBoundsChangedListener));
     }
 
     setup();
 
     return () => {
-      listeners.forEach((listener) => {
-        if (typeof google !== "undefined") {
-          // eslint-disable-next-line no-undef
-          google.maps.event.removeListener(listener);
-        }
-      });
+      listeners.forEach((listener) => listener.remove());
     };
   }, [onMapCenterUpdate]);
 
@@ -149,6 +143,7 @@ export default function Dashboard({ onMapCenterUpdate, submissionStatus }) {
           height: "60vh",
           width: "60vw",
           minWidth: "30rem",
+          marginBottom: "1rem",
 
           borderRadius: "1rem",
           overflow: "hidden",

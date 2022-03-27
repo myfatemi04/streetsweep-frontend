@@ -20,7 +20,7 @@ function App() {
     const formData = new FormData();
     formData.append("file", imageInput.current.files[0]);
     fetch(
-      `http://127.0.0.1:5000/submit_photo/${mapCenter.lat},${mapCenter.lng}`,
+      `http://127.0.0.1:5555/submit_photo/${mapCenter.lat},${mapCenter.lng}`,
       { mode: "no-cors", method: "post", body: formData }
     )
       .then(() => {
@@ -43,6 +43,9 @@ function App() {
         }}
       >
         <h1 style={{ marginBottom: "0.5rem" }}>StreetSweep</h1>
+        <span style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>
+          Zoom into where you saw the trash and upload a photo.
+        </span>
         <div
           style={{
             display: "flex",
