@@ -1,6 +1,7 @@
 import GoogleMapReact from "google-map-react";
 import { useEffect, useRef, useLayoutEffect, useState, useMemo } from "react";
 import { getSubmissions } from "./api";
+import getMostLikelyClassNames from "./getMostLikelyClassNames";
 
 // function generatePositions() {
 //   const positions = [];
@@ -14,6 +15,10 @@ import { getSubmissions } from "./api";
 // }
 
 // const positions = getSubmissions(); // generatePositions();
+
+const numFormat = new Intl.NumberFormat("en-US", {
+  maximumSignificantDigits: 4,
+});
 
 // https://www.npmjs.com/package/google-map-react
 // https://zjor.medium.com/heatmaps-with-google-map-react-57e279315060
@@ -35,7 +40,6 @@ export default function Dashboard({ onMapCenterUpdate }) {
     if (!mapRef.current) return;
 
     const listeners = [];
-    let foundMap = null;
 
     function setup() {
       const map = mapRef.current.map_;
@@ -48,8 +52,6 @@ export default function Dashboard({ onMapCenterUpdate }) {
       if (listeners.length > 0) {
         return;
       }
-
-      foundMap = map;
 
       let previousMapBoundsChangedCallTime = 0;
       let previousCenterChangedCallTime = 0;
@@ -93,11 +95,12 @@ export default function Dashboard({ onMapCenterUpdate }) {
     setup();
 
     return () => {
-      if (foundMap) {
-        foundMap.removeListener("center_changed", listeners[0]);
-        foundMap.removeListener("center_changed", listeners[1]);
-        foundMap.removeListener("zoom_changed", listeners[0]);
-      }
+      listeners.forEach((listener) => {
+        if (typeof google !== "undefined") {
+          // eslint-disable-next-line no-undef
+          google.maps.event.removeListener(listener);
+        }
+      });
     };
   }, [onMapCenterUpdate]);
 
@@ -150,6 +153,43 @@ export default function Dashboard({ onMapCenterUpdate }) {
         {visibleSubmissions.length} instance
         {visibleSubmissions.length !== 1 ? "s" : ""} of garbage found in this
         area.
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {visibleSubmissions.map((submission, idx) => {
+            const classNamesByCount = {};
+
+            for (const className of getMostLikelyClassNames(
+              submission.class_likelihoods
+            )) {
+              classNamesByCount[className] =
+                (classNamesByCount[className] || 0) + 1;
+            }
+
+            return (
+              <div
+                key={`${submission.lat}:${submission.lng}:${idx}`}
+                style={{ fontSize: "1rem" }}
+              >
+                <b>
+                  {numFormat.format(submission.lat)},{" "}
+                  {numFormat.format(submission.lng)}
+                </b>
+                {Object.keys(classNamesByCount).map((className) => (
+                  <span key={className}>
+                    {className}
+                    {classNamesByCount[className] > 1 &&
+                      ` (x${classNamesByCount[className]})`}
+                    <br />
+                  </span>
+                ))}
+              </div>
+            );
+          })}
+        </div>
       </p>
     </div>
   );
